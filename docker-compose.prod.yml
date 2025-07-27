@@ -3,76 +3,64 @@ services:
   postgres:
     image: 'postgres:15-alpine'
     environment:
-      POSTGRES_PASSWORD: postgres_password
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres_password}
       POSTGRES_DB: postgres
     volumes:
       - postgres_data:/var/lib/postgresql/data
-    ports:
-      - "5432:5432"
+    restart: unless-stopped
   
   redis:
     image: 'redis:7-alpine'
-    ports:
-      - "6379:6379"
+    restart: unless-stopped
   
   nginx:
     restart: always
     build:
-      dockerfile: Dockerfile.dev
+      dockerfile: Dockerfile
       context: ./nginx
     ports:
-      - '3050:80'
+      - '80:80'
     depends_on:
       - api
       - client
   
   api:
     build:
-      dockerfile: Dockerfile.dev
+      dockerfile: Dockerfile
       context: ./server
-    volumes:
-      - /app/node_modules
-      - ./server:/app
     environment:
       - REDIS_HOST=redis
       - REDIS_PORT=6379
       - PGUSER=postgres
       - PGHOST=postgres
       - PGDATABASE=postgres
-      - PGPASSWORD=postgres_password
+      - PGPASSWORD=${POSTGRES_PASSWORD:-postgres_password}
       - PGPORT=5432
+      - NODE_ENV=production
     depends_on:
       - postgres
       - redis
-    ports:
-      - "5000:5000"
+    restart: unless-stopped
   
   client:
     build:
-      dockerfile: Dockerfile.dev
+      dockerfile: Dockerfile
       context: ./client
-    volumes:
-      - /app/node_modules
-      - ./client:/app
-    ports:
-      - "3000:3000"
     environment:
-      - REACT_APP_API_URL=http://localhost:5000
+      - REACT_APP_API_URL=http://localhost/api
+    restart: unless-stopped
   
   worker:
     build:
-      dockerfile: Dockerfile.dev
+      dockerfile: Dockerfile
       context: ./worker
-    volumes:
-      - /app/node_modules
-      - ./worker:/app
     environment:
       - REDIS_HOST=redis
       - REDIS_PORT=6379
+      - NODE_ENV=production
     depends_on:
       - redis
+    restart: unless-stopped
 
 volumes:
-  postgres_data:
-
-       
+  postgres_data: 

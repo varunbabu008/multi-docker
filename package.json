@@ -1,0 +1,35 @@
+{
+  "name": "multi-docker",
+  "version": "1.0.0",
+  "description": "Multi-container Docker application with React, Express, Redis, and PostgreSQL",
+  "scripts": {
+    "dev": "docker-compose up --build",
+    "dev:logs": "docker-compose up --build && docker-compose logs -f",
+    "prod": "docker-compose -f docker-compose.prod.yml up --build",
+    "prod:logs": "docker-compose -f docker-compose.prod.yml up --build && docker-compose logs -f",
+    "stop": "docker-compose down",
+    "stop:prod": "docker-compose -f docker-compose.prod.yml down",
+    "clean": "docker-compose down -v --remove-orphans",
+    "clean:prod": "docker-compose -f docker-compose.prod.yml down -v --remove-orphans",
+    "logs": "docker-compose logs -f",
+    "logs:prod": "docker-compose -f docker-compose.prod.yml logs -f",
+    "rebuild": "docker-compose down && docker-compose up --build",
+    "rebuild:prod": "docker-compose -f docker-compose.prod.yml down && docker-compose -f docker-compose.prod.yml up --build"
+  },
+  "keywords": [
+    "docker",
+    "react",
+    "express",
+    "redis",
+    "postgresql",
+    "nginx",
+    "microservices"
+  ],
+  "author": "",
+  "license": "MIT",
+  "engines": {
+    "node": ">=18.0.0",
+    "docker": ">=20.0.0",
+    "docker-compose": ">=3.8.0"
+  }
+} 

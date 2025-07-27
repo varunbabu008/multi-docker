@@ -27,11 +27,22 @@ pgClient
 // Redis Client Setup
 const redis = require('redis');
 const redisClient = redis.createClient({
-  host: keys.redisHost,
-  port: keys.redisPort,
-  retry_strategy: () => 1000
+  socket: {
+    host: keys.redisHost,
+    port: keys.redisPort
+  }
 });
+
 const redisPublisher = redisClient.duplicate();
+
+// Connect to Redis
+(async () => {
+  await redisClient.connect();
+  await redisPublisher.connect();
+})();
+
+redisClient.on('error', (err) => console.log('Redis Client Error', err));
+redisPublisher.on('error', (err) => console.log('Redis Publisher Error', err));
 
 // Express route handlers
 
@@ -40,15 +51,23 @@ app.get('/', (req, res) => {
 });
 
 app.get('/values/all', async (req, res) => {
-  const values = await pgClient.query('SELECT * from varun');
-
-  res.send(values.rows);
+  try {
+    const values = await pgClient.query('SELECT * from varun');
+    res.send(values.rows);
+  } catch (err) {
+    console.error('Error fetching values:', err);
+    res.status(500).send('Error fetching values');
+  }
 });
 
 app.get('/values/current', async (req, res) => {
-  redisClient.hgetall('values', (err, values) => {
+  try {
+    const values = await redisClient.hGetAll('values');
     res.send(values);
-  });
+  } catch (err) {
+    console.error('Error fetching current values:', err);
+    res.status(500).send('Error fetching current values');
+  }
 });
 
 app.post('/values', async (req, res) => {
@@ -58,13 +77,17 @@ app.post('/values', async (req, res) => {
     return res.status(422).send('Index too high');
   }
 
-  redisClient.hset('values', index, 'Nothing yet!');
-  redisPublisher.publish('insert', index);
-  pgClient.query('INSERT INTO varun(number) VALUES($1)', [index]);
-
-  res.send({ working: true });
+  try {
+    await redisClient.hSet('values', index, 'Nothing yet!');
+    await redisPublisher.publish('insert', index);
+    await pgClient.query('INSERT INTO varun(number) VALUES($1)', [index]);
+    res.send({ working: true });
+  } catch (err) {
+    console.error('Error processing value:', err);
+    res.status(500).send('Error processing value');
+  }
 });
 
 app.listen(5000, err => {
-  console.log('Listening');
+  console.log('Listening on port 5000');
 });
