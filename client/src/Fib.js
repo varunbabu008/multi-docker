@@ -1,6 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 
+// Create axios instance with base URL
+const api = axios.create({
+  baseURL: 'http://localhost:5001'
+});
+
 function Fib() {
   const [seenIndexes, setSeenIndexes] = useState([]);
   const [values, setValues] = useState({});
@@ -13,7 +18,7 @@ function Fib() {
 
   async function fetchValues() {
     try {
-      const response = await axios.get('/api/values/current');
+      const response = await api.get('/values/current');
       setValues(response.data);
     } catch (error) {
       console.error('Error fetching values:', error);
@@ -22,7 +27,7 @@ function Fib() {
 
   async function fetchIndexes() {
     try {
-      const response = await axios.get('/api/values/all');
+      const response = await api.get('/values/all');
       setSeenIndexes(response.data);
     } catch (error) {
       console.error('Error fetching indexes:', error);
@@ -33,7 +38,7 @@ function Fib() {
     event.preventDefault();
 
     try {
-      await axios.post('/api/values', {
+      await api.post('/values', {
         index: index
       });
       setIndex('');
