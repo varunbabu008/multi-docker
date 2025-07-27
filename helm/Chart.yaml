@@ -1,0 +1,18 @@
+apiVersion: v2
+name: multi-docker
+description: A Helm chart for Multi-Docker Application
+type: application
+version: 0.1.0
+appVersion: "1.0.0"
+keywords:
+  - docker
+  - react
+  - express
+  - redis
+  - postgresql
+home: https://github.com/your-username/multi-docker
+sources:
+  - https://github.com/your-username/multi-docker
+maintainers:
+  - name: Your Name
+    email: your-email@example.com 
