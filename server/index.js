@@ -79,7 +79,7 @@ app.post('/values', async (req, res) => {
 
   try {
     await redisClient.hSet('values', index, 'Nothing yet!');
-    await redisPublisher.publish('insert', index);
+    await redisPublisher.publish('insert', index.toString());
     await pgClient.query('INSERT INTO varun(number) VALUES($1)', [index]);
     res.send({ working: true });
   } catch (err) {

@@ -24,8 +24,21 @@ const sub = redisClient.duplicate();
 redisClient.on('error', (err) => console.log('Redis Client Error', err));
 sub.on('error', (err) => console.log('Redis Subscriber Error', err));
 
-function fib(index) {
-  console.log('Calculating fibonacci for index:', index);
-  if (index < 2) return 1;
-  return fib(index - 1) + fib(index - 2);
+// Memory-efficient iterative Fibonacci function
+function fib(n) {
+  console.log('Calculating fibonacci for index:', n);
+  
+  if (n < 0) return 0;
+  if (n <= 1) return 1;
+  
+  let prev = 1;
+  let current = 1;
+  
+  for (let i = 2; i <= n; i++) {
+    const next = prev + current;
+    prev = current;
+    current = next;
+  }
+  
+  return current;
 }

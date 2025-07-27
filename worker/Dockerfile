@@ -3,4 +3,4 @@ WORKDIR '/app'
 COPY ./package.json ./
 RUN npm install --only=production
 COPY . .
-CMD ["npm", "start"]
+CMD ["node", "--max-old-space-size=4096", "index.js"]
